@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cloud Computing Quiz</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#0b5cff;--muted:#6b7280;}
+    body{font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);margin:0;padding:24px;color:#0b1220}
+    .container{max-width:960px;margin:0 auto}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:4px 0 20px;color:var(--muted)}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(12,24,48,0.06);padding:18px}
+    .q{padding:12px;border-radius:8px;margin-bottom:10px;border:1px solid #eef2ff}
+    .q h3{margin:0 0 8px;font-size:15px}
+    .opts{display:flex;flex-direction:column;gap:6px}
+    label.opt{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer}
+    input[type=radio]{width:16px;height:16px}
+    .result{margin-top:14px;padding:12px;border-radius:8px;background:#f3f7ff;border:1px solid #dbe8ff}
+    .correct{background:#e6ffef;border-color:#b9f2d0}
+    .wrong{background:#fff0f0;border-color:#ffd2d2}
+    .score{font-weight:700;font-size:18px}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:14px}
+    button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:8px;cursor:pointer}
+    button.secondary{background:#f3f4f6;color:#0b1220}
+    .feedback{margin-top:12px}
+    small.hint{color:var(--muted)}
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+    @media (max-width:640px){body{padding:12px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Cloud Computing Quiz</h1>
+        <p class="lead">Answer all questions then press <strong>Submit</strong></p>
+      </div>
+    </header>
+
+    <div class="card" id="quizCard">
+      <div id="quiz"></div>
+
+      <div class="controls">
+        <button id="submitBtn">Submit</button>
+        <button id="resetBtn" class="secondary" type="button">Reset</button>
+        <button id="shuffleBtn" class="secondary" type="button">Shuffle Questions</button>
+      </div>
+
+      <div id="summary" class="feedback"></div>
+    </div>
+
+    <footer>All rights reserved to khaled :P happy new year</footer>
+  </div>
+
+<script>
+const questions = [
+  {"q": "1. Which of the below can NOT considered as a Cloud Computing benefits?", "opts": ["A) Metered services", "B) On-demand self-services", "C) Resources pooling", "D) Limited flexibility"], "ans": "D"},
+  {"q": "2. Which benefit that includes Consumers can deploy processing capabilities on demand?", "opts": ["A) On-demand self-service", "B) Widespread network access", "C) Resource pooling", "D) Quick deployment and auto scaling"], "ans": "A"},
+  {"q": "3. Which benefit that includes users can access various services over the Internet via different clients, such as mobile phones, laptops, and tablets?", "opts": ["A) On-demand self-service", "B) Widespread network access", "C) Resource pooling", "D) Quick deployment and auto scaling"], "ans": "B"},
+  {"q": "4. Which benefit that includes computing resources can be rapidly and elastically provisioned, expanded, and released?", "opts": ["A) On-demand self-service", "B) Widespread network access", "C) Resource pooling", "D) Quick deployment and auto scaling"], "ans": "D"},
+  {"q": "5. Which benefit that includes computing resources are pooled and provisioned in a multi- tenant model?", "opts": ["A) On-demand self-service", "B) Widespread network access", "C) Resource pooling", "D) Quick deployment and auto scaling"], "ans": "C"},
+  {"q": "6. Which of the following is NOT considered as Challenges to Traditional IT?", "opts": ["A) Complex lifecycle management", "B) Low reliability", "C) Low TCO", "D) Latency caused by I/O bottlenecks"], "ans": "C"},
+  {"q": "7. Which of the following best defines virtualization?", "opts": ["A) Creating a physical copy of resources", "B) Creating a virtual version of resources", "C) Physical partitioning of servers", "D) Increasing physical storage"], "ans": "B"},
+  {"q": "8. What is the main benefit of server virtualization?", "opts": ["A) Reduces the need for data encryption", "B) Increases the physical hardware footprint", "C) Optimizes resource utilization and allows multiple VMs to run on a single physical server", "D) Makes network management more complex"], "ans": "C"},
+  {"q": "9. Which service model is primarily responsible for providing infrastructure components like servers, storage, and networking?", "opts": ["A) SaaS", "B) PaaS", "C) IaaS", "D) Traditional IT"], "ans": "C"},
+  {"q": "10. Which of the following is a key feature of PaaS?", "opts": ["A) Provides customers with physical hardware to manage and configure", "B) Offers a platform for deploying applications without handling the underlying infrastructure", "C) Provides SaaS applications for end-users to access", "D) Focuses on providing data storage services"], "ans": "B"},
+  {"q": "11. Which cloud model allows the user to focus mainly on the application that being provided?", "opts": ["A) SaaS", "B) PaaS", "C) IaaS", "D) Traditional IT"], "ans": "A"},
+  {"q": "12. Which of the following is NOT considered as SaaS application?", "opts": ["A) Microsoft Office", "B) Adobe Programs", "C) Netflix", "D) AWS Elastic Beanstalk"], "ans": "D"},
+  {"q": "13. Cloud infrastructure that is owned and managed for exclusive use by a single organization.", "opts": ["A) Public cloud", "B) Private cloud", "C) Hybrid cloud", "D) None of the above"], "ans": "B", "fixed": true},
+  {"q": "14. Cloud infrastructure is owned and managed by a third-party cloud service provider and shared with multiple organizations using the Internet.", "opts": ["A) Public cloud", "B) Private cloud", "C) Hybrid cloud", "D) None of the above"], "ans": "A", "fixed": true},
+  {"q": "15. One key benefit of using hybrid cloud solutions is:", "opts": ["A) Reduced dependency on public cloud resources", "B) The ability to seamlessly integrate on-premises IT infrastructure with public cloud services", "C) High dependency on a single vendor’s infrastructure", "D) Lack of data synchronization between on-premises and cloud resources"], "ans": "B"},
+  {"q": "16. Which of the following considered as Amazon cloud resource?", "opts": ["A) AWS", "B) Azure", "C) VMware", "D) Google Cloud"], "ans": "A"},
+  {"q": "17. Which of the following that acts between a client and a destination server, forwarding requests and responses?", "opts": ["A) Database", "B) Email", "C) Routing", "D) Proxy"], "ans": "D"},
+  {"q": "18. Which of the following servers is similar to a vertical PC in size?", "opts": ["A) Tower Servers", "B) Rack Servers", "C) Blade Servers", "D) None of the above"], "ans": "A", "fixed": true},
+  {"q": "19. Which of the following servers is Ideal for high-performance or dense computing?", "opts": ["A) Tower Servers", "B) Rack Servers", "C) Blade Servers", "D) None of the above"], "ans": "C", "fixed": true},
+  {"q": "20. Which of the following servers provide moderate server scalability?", "opts": ["A) Tower Servers", "B) Rack Servers", "C) Blade Servers", "D) None of the above"], "ans": "B", "fixed": true},
+  {"q": "21. Which of the below computer components is the primary component of a computer that executes instructions, processes data?", "opts": ["A) Memory", "B) Drive", "C) CPU", "D) NIC"], "ans": "C"},
+  {"q": "22. Which of the below computer components is used to temporarily store CPU operation data?", "opts": ["A) Memory", "B) Drive", "C) CPU", "D) NIC"], "ans": "A"},
+  {"q": "23. Which of the below is considered the fastest storage disk and the most expensive?", "opts": ["A) SATA", "B) SAS", "C) NL-SAS", "D) SSD"], "ans": "D"},
+  {"q": "24. Which of the below is not a mechnical storage disk?", "opts": ["A) SATA", "B) SAS", "C) NL-SAS", "D) SSD"], "ans": "D"},
+  {"q": "25. Which is the below is used for tiered storage, enterprise backup?", "opts": ["A) SATA", "B) SAS", "C) NL-SAS", "D) SSD"], "ans": "C"},
+  {"q": "26. Which of the below is most used storage disks before many years ago for regular users?", "opts": ["A) SATA", "B) SAS", "C) NL-SAS", "D) SSD"], "ans": "A"},
+  {"q": "27. Which of the following is the function of RAID?", "opts": ["A) Combines logical units components into one or more physical drives", "B) Combines physical disks drive components into one or more logical units", "C) Combine physical disks drive components into one logical unit only", "D) All of the above"], "ans": "B", "fixed": true},
+  {"q": "28. Which of the following is NOT a function of a RAID hot spare?", "opts": ["A) To replace a failed drive automatically", "B) To maintain the RAID array's redundancy", "C) To increase the RAID array's total storage capacity", "D) To ensure data continuity in case of drive failure"], "ans": "C"},
+  {"q": "29. Which of the following RAID Implementations making the process faster?", "opts": ["A) Hardware Implementation", "B) Software Implementation", "C) Both hardware and software", "D) None of the above"], "ans": "A", "fixed": true},
+  {"q": "30. What can we call the XOR process of RAID Implementation?", "opts": ["A) Hardware Process", "B) Software Process", "C) Hot spare", "D) None of the above"], "ans": "B", "fixed": true},
+  {"q": "31. Which of the following RAID Implementation is the lowest implementation cost?", "opts": ["A) Software RAID", "B) Built-in RAID", "C) External RAID", "D) All of the above"], "ans": "A", "fixed": true},
+  {"q": "32. Which of the following provides ultra-large-capacity storage systems for high-end servers?", "opts": ["A) Software RAID", "B) Built-in RAID", "C) External RAID", "D) All of the above"], "ans": "C", "fixed": true},
+  {"q": "33. Which of the following is famous of being high cost?", "opts": ["A) RAID 0", "B) RAID 1", "C) RAID 5", "D) RAID 6"], "ans": "B"},
+  {"q": "34. Which of the following is NOT a BIOS functions?", "opts": ["A) OS Booting", "B) Hardware Detection", "C) Advanced Power Management", "D) Disk Defragmentation"], "ans": "D"},
+  {"q": "35. Applications and services that run on a distributed network using virtualized resources is known as?", "opts": ["A) Parallel Computing", "B) Software Computing", "C) Cloud Computing", "D) Distributed Computing"], "ans": "C"},
+  {"q": "36. Which of the following components is NOT a must for a server?", "opts": ["A) Power Supply", "B) FAN", "C) Display", "D) CPU"], "ans": "C"},
+  {"q": "37. Which of the following drives provides the best read and write in ideal working conditions?", "opts": ["A) NL-SAS", "B) SAS", "C) SATA", "D) SSD"], "ans": "C"},
+  {"q": "38. Which of the following Storage Networking cannot establish a connection if one server is dropped?", "opts": ["A) DAS", "B) NAS", "C) FC SAN", "D) IP SAN"], "ans": "A"},
+  {"q": "39. Which of the following was the first type of Storage Networking?", "opts": ["A) DAS", "B) NAS", "C) FC SAN", "D) IP SAN"], "ans": "A"},
+  {"q": "40. What does DAS stand for in storage terminology?", "opts": ["A) Direct Attached Storage", "B) Data Access Storage", "C) Disk Array Storage", "D) Digital Access System"], "ans": "A"},
+  {"q": "41. Which of the following Connection mode(s) used in DAS?", "opts": ["A) Fibre Channel", "B) SCSI", "C) SAS", "D) All of the above"], "ans": "D", "fixed": true},
+  {"q": "42. Which of the following is considered as the most limited scalability?", "opts": ["A) DAS", "B) NAS", "C) FC SAN", "D) IP SAN"], "ans": "A"},
+  {"q": "43. The abbreviation NAS refers to which of the following?", "opts": ["A) Network Application Server", "B) Network Attached Storage", "C) New Array System", "D) Network Access System"], "ans": "B"},
+  {"q": "44. Which of the following is used in video security?", "opts": ["A) DAS", "B) NAS", "C) FC SAN", "D) IP SAN"], "ans": "D"},
+  {"q": "45. What is the full form of SAS in the context of storage?", "opts": ["A) Serial Array Storage", "B) Storage Area System", "C) Serial Attached SCSI", "D) Storage Access System"], "ans": "C"},
+  {"q": "46. Which of the following data types is used with NAS?", "opts": ["A) Block-level", "B) File-level", "C) High-level", "D) All of the above"], "ans": "B", "fixed": true},
+  {"q": "47. Which of the following data types is used with IP SAN?", "opts": ["A) Block-level", "B) File-level", "C) High-level", "D) All of the above"], "ans": "A", "fixed": true},
+  {"q": "48. Which of following started using CIFS and NFS Concurrent read and write operations?", "opts": ["A) DAS", "B) NAS", "C) FC SAN", "D) IP SAN"], "ans": "B"},
+  {"q": "49. What does SCSI stand for?", "opts": ["A) Serial Computer System Interface", "B) Small Computer System Interface", "C) Storage Control System Interface", "D) Standard Computer Storage Interface"], "ans": "B"},
+  {"q": "50. Which of the following Operating Systems is best used in file sharing over networks with CIFS?", "opts": ["A) Unix", "B) Linux", "C) Windows", "D) MAC"], "ans": "C"},
+  {"q": "51. Which of the following Operating Systems is best used in file sharing over networks with NFS?", "opts": ["A) Linux", "B) Windows", "C) MAC", "D) None of the above"], "ans": "A", "fixed": true},
+  {"q": "52. What component is responsible for managing storage volumes in the NAS system?", "opts": ["A) File System", "B) Volume management module", "C) Ethernet port", "D) Logical Unit Number"], "ans": "B"},
+  {"q": "53. What is the purpose of LUNs in the NAS system?", "opts": ["A) To manage network connections", "B) To handle user authentication", "C) To provide and share logical storage units", "D) To control file system permissions"], "ans": "C"},
+  {"q": "54. Which of the following Connection mode(s) used in FC SAN?", "opts": ["A) Fibre Channel", "B) IP", "C) SCSI", "D) All of the above"], "ans": "A", "fixed": true},
+  {"q": "55. Which of the following Usages is used in FC SAN?", "opts": ["A) General-purpose", "B) File servers", "C) Database applications", "D) Video security"], "ans": "C"},
+  {"q": "56. Which of the following Connection mode(s) used in IP SAN?", "opts": ["A) Fibre Channel", "B) IP", "C) SCSI", "D) All of the above"], "ans": "B", "fixed": true},
+  {"q": "57. Which of the following Usages is used in NAS?", "opts": ["A) General-purpose", "B) File servers", "C) Database applications", "D) Video security"], "ans": "B"},
+  {"q": "58. What is the primary purpose of metadata in object storage?", "opts": ["A) To store the actual data itself", "B) To provide information about the data", "C) To compress the data for storage efficiency", "D) To delete unused data automatically"], "ans": "B"},
+  {"q": "59. Which of the following RAIDs do NOT provide data redundancy?", "opts": ["A) RAID 0", "B) RAID 1", "C) RAID 5", "D) RAID 10"], "ans": "A"},
+  {"q": "60. Which of the following is data loss type in RAIDs?", "opts": ["A) RAID 0", "B) RAID 1", "C) RAID 5", "D) RAID 10"], "ans": "A"},
+  {"q": "61. What is the primary goal of using RAID?", "opts": ["A) To improve CPU performance", "B) To increase storage capacity", "C) To enhance data redundancy and/or performance", "D) To secure data transmission"], "ans": "C"},
+  {"q": "62. RAID 5 uses which type of redundancy mechanism to protect data?", "opts": ["A) Mirroring", "B) Parity", "C) Striping", "D) Duplication"], "ans": "B"},
+  {"q": "63. Which of the following best describes the difference between RAID 1 and RAID 10?", "opts": ["A) RAID 1 requires a minimum of 3 disks, while RAID 10 requires at least 4 disks", "B) RAID 1 provides better performance than RAID 10", "C) RAID 1 uses striping, while RAID 10 uses mirroring", "D) RAID 10 provides both performance and redundancy, while RAID 1 only provides redundancy"], "ans": "D"},
+  {"q": "64. In RAID 0 configuration, how is data distributed across the disks?", "opts": ["A) Data is mirrored across all disks", "B) Data is stored in blocks across multiple disks without redundancy", "C) Data is striped using parity bits across disks", "D) Data is compressed and then striped across disks"], "ans": "B"},
+  {"q": "65. Which RAID requires the least number of disks and provides the highest storage capacity?", "opts": ["A) RAID 1", "B) RAID 5", "C) RAID 10", "D) RAID 0"], "ans": "D"},
+  {"q": "66. What is the effect of using RAID 0 for high-performance applications?", "opts": ["A) It significantly reduces storage capacity", "B) It provides data redundancy without performance gain", "C) It increases the risk of data loss if a disk fails", "D) It guarantees data protection against two simultaneous disk failures"], "ans": "C"},
+  {"q": "67. What is the primary difference between SCSI and iSCSI?", "opts": ["A) SCSI is used over networks, while iSCSI is a local connection", "B) SCSI uses a local bus interface, while iSCSI uses TCP/IP over a network", "C) iSCSI is slower than SCSI in all use cases", "D) SCSI is only used in cloud storage, while iSCSI is for physical storage"], "ans": "B"},
+  {"q": "68. Which of the following technologies uses IP networks to transmit SCSI commands?", "opts": ["A) SCSI", "B) iSCSI", "C) SAS", "D) NAS"], "ans": "B"},
+  {"q": "69. In which scenario is iSCSI more beneficial than traditional SCSI", "opts": ["A) When connecting devices within a single server", "B) For high-speed, local data transfers only", "C) For connecting remote storage devices over a network", "D) For low-speed backup solutions only"], "ans": "C"},
+  {"q": "70. Which technology would likely be used for direct-attached storage in a single server setup?", "opts": ["A) iSCSI", "B) SCSI", "C) NFS", "D) CIFS"], "ans": "B"},
+  {"q": "71. In which layer of SCSI does Client-Server takes a place in I/O request?", "opts": ["A) Application layer", "B) Transport layer", "C) Interconnection layer", "D) Network layer"], "ans": "A"},
+  {"q": "72. Which of the following statements about iSCSI is incorrect?", "opts": ["A) iSCSI enables block-level data transfer over IP networks", "B) iSCSI uses TCP/IP as its transport protocol", "C) iSCSI is primarily used for connecting local storage within a server", "D) iSCSI allows remote storage to appear as locally attached storage"], "ans": "C"},
+  {"q": "73. What protocol is primarily used in an IP SAN to transport storage data?", "opts": ["A) HTTP", "B) iSCSI", "C) FTP", "D) SMB"], "ans": "B"},
+  {"q": "74. What is a key benefit of IP SAN over Fibre Channel SAN?", "opts": ["A) Lower latency", "B) Requires less bandwidth", "C) Uses standard TCP/IP networks, making it more cost-effective", "D) Requires dedicated hardware for each connection"], "ans": "C"},
+  {"q": "75. What does iFCP stand for?", "opts": ["A) Internet Fibre Channel Protocol", "B) Integrated Fibre Channel Protocol", "C) Internet File Channel Protocol", "D) Internal Fibre Channel Protocol"], "ans": "A"},
+  {"q": "76. What is the primary purpose of iFCP?", "opts": ["A) To enable local file storage", "B) To route Fibre Channel traffic over IP networks", "C) To directly connect storage to servers via USB", "D) To encrypt network communications"], "ans": "B"},
+  {"q": "77. Which protocol does iFCP use to transport Fibre Channel data over IP networks?", "opts": ["A) HTTP", "B) TCP/IP", "C) FTP", "D) SMB"], "ans": "B"},
+  {"q": "78. Which of the following is a key advantage of iFCP?", "opts": ["A) Allows Fibre Channel to operate without using IP networks", "B) Provides Fibre Channel connectivity over long distances using IP networks", "C) Limits storage access to local devices only", "D) Provides slower performance than traditional Fibre Channel"], "ans": "B"},
+  {"q": "79. What distinguishes iFCP from other protocols like iSCSI?", "opts": ["A) iFCP is designed for connecting local hard drives", "B) iFCP is specifically for Fibre Channel traffic over IP, while iSCSI uses IP for SCSI commands", "C) iFCP does not support long-distance communication", "D) iFCP cannot be used in Storage Area Networks (SANs)"], "ans": "B"},
+  {"q": "80. Which protocol is iFCP most closely associated with?", "opts": ["A) NFS", "B) HTTP", "C) Fibre Channel", "D) CIFS"], "ans": "C"},
+  {"q": "81. What does FCoE stand for?", "opts": ["A) Fibre Channel over Ethernet", "B) Fibre Connection over Ethernet", "C) Fibre Channel over Enterprise", "D) Fibre Cluster over Ethernet"], "ans": "A"},
+  {"q": "82. What is the primary purpose of FCoE?", "opts": ["A) To transmit Fibre Channel traffic over Ethernet networks", "B) To connect USB drives over the internet", "C) To provide Fibre Channel connectivity over IP-only networks", "D) To encrypt network traffic"], "ans": "A"},
+  {"q": "83. FCoE is most commonly implemented in which type of environment?", "opts": ["A) Home networks", "B) Data centers with high-speed Ethernet infrastructure", "C) Public Wi-Fi networks", "D) Small office networks"], "ans": "B"},
+  {"q": "84. In the iSCSI architecture, which component is responsible for managing storage access requests?", "opts": ["A) Storage Target", "B) iSCSI Initiator", "C) Storage Switch", "D) Cloud Management Server"], "ans": "A"},
+  {"q": "85. What is the role of an iSCSI Initiator?", "opts": ["A) To manage the physical storage hardware", "B) To send storage access requests to the iSCSI target", "C) To store and manage backup data", "D) To encrypt data before transmission"], "ans": "B"},
+  {"q": "86. Which of the following statements is true about the scalability of iSCSI?", "opts": ["A) iSCSI can scale to connect multiple instances to a centralized storage system over a network.", "B) iSCSI is only suitable for small-scale, single-instance environments.", "C) iSCSI cannot scale to meet the needs of growing data centers.", "D) iSCSI requires manual intervention to scale storage for cloud environments."], "ans": "A"},
+  {"q": "87. What is the main advantage of using iSCSI compared to traditional Fibre Channel-based storage?", "opts": ["A) Higher throughput for block-level storage", "B) Ability to use existing TCP/IP network infrastructure for storage", "C) Increased data redundancy", "D) Reduced network latency"], "ans": "B"},
+  {"q": "88. What is one of the key benefits of using FC SAN for large-scale storage environments?", "opts": ["A) Lower network bandwidth requirements", "B) Ability to scale out storage without impacting application performance", "C) Incompatibility with virtualized environments", "D) Simpler implementation compared to IP SAN"], "ans": "B"},
+  {"q": "89. What is the key benefit of NAS in clouds storage solutions?", "opts": ["A) High IOPS (Input/Output Operations Per Second)", "B) Simplified file sharing and centralized file access over a network", "C) Lower cost per gigabyte compared to block storage", "D) Ability to perform low-latency transactions on block data"], "ans": "B"},
+  {"q": "90. NAS is primarily optimized for which of the following types of data?", "opts": ["A) Structured data and database storage", "B) High-performance transactional data", "C) Unstructured data, including files and documents", "D) Backup and archival data only"], "ans": "C"},
+  {"q": "91. Which of the following is a key advantage of virtualization in infrastructures?", "opts": ["A) Greater dependency on physical hardware", "B) Simplified workload management and faster resource allocation", "C) Inability to scale resources based on demand", "D) Difficulty in integrating with existing systems"], "ans": "B"},
+  {"q": "92. Which of the following is a key advantage of FCoE in cloud computing environments?", "opts": ["A) It increases the complexity of storage network management", "B) It reduces the need for additional Ethernet hardware for storage traffic", "C) It requires separate physical networks for storage and data traffic", "D) It limits the scalability of Fibre Channel storage"], "ans": "B"},
+  {"q": "93. In FCoE, the Fibre Channel frames are encapsulated into:", "opts": ["A) TCP packets for efficient routing over the internet", "B) Ethernet frames for transport over Ethernet networks", "C) IP packets for cloud communication", "D) UDP packets for low-latency transmission"], "ans": "B"},
+  {"q": "94. IFCP and FCoE both help to:", "opts": ["A) Extend storage networking capabilities over long distances", "B) Replace the need for Fibre Channel in data centers", "C) Use traditional Ethernet networks for cloud computing", "D) Eliminate the need for network adapters in storage systems"], "ans": "A"},
+  {"q": "95. When configuring a network, the router typically handles:", "opts": ["A) The physical connectivity between devices on the network", "B) The translation of IP addresses from public to private and vice versa", "C) The provision of IP addresses to devices in the cloud", "D) The isolation of different cloud services"], "ans": "B"},
+  {"q": "96. Which RAID level requires at least three disks and provides data redundancy and improved read performance using parity data?", "opts": ["A) RAID 1", "B) RAID 5", "C) RAID 10", "D) RAID 6"], "ans": "B"},
+  {"q": "97. Which of the following is a disadvantage of using RAID 5?", "opts": ["A) It requires more storage capacity compared to RAID 0", "B) It has higher read/write performance compared to RAID 1", "C) Write performance can be slower due to parity calculations", "D) It does not provide data redundancy"], "ans": "C"},
+  {"q": "98. In a RAID 10 configuration, how is data written across the disks?", "opts": ["A) Data is mirrored, and then striped across disks", "B) Data is striped, and then mirrored", "C) Data is striped across all disks without any redundancy", "D) Data is written using parity bits"], "ans": "A"},
+  {"q": "99. What is the key advantage of RAID 6 over RAID 5?", "opts": ["A) RAID 6 has no write penalty", "B) RAID 6 offers double parity, which allows it to survive two disk failures", "C) RAID 6 provides faster read/write speeds", "D) RAID 6 uses fewer disks than RAID 5"], "ans": "B"},
+  {"q": "100. What does NAS (Network Attached Storage) primarily provide in environments?", "opts": ["A) Block-level storage", "B) File-level storage accessed over a network", "C) High-performance computing capabilities", "D) Data protection via disk mirroring"], "ans": "B"},
+  {"q": "101. Routers operate at which layer of the TCP/IP model?", "opts": ["A) Network Layer", "B) Data Link Layer", "C) Physical Layer", "D) Application Layer"], "ans": "A"},
+  {"q": "102. How does a router decide the path for forwarding a data packet?", "opts": ["A) By selecting a path arbitrarily", "B) By analyzing the current network traffic", "C) By examining the destination address in the packet", "D) By evaluating the shortest available path"], "ans": "C"},
+  {"q": "103. Where is a firewall typically located?", "opts": ["A) Inside an internal network's main server", "B) Between two networks of different trust levels", "C) Between routers within the same network", "D) At the endpoint of user devices"], "ans": "B"},
+  {"q": "104. How does a firewall ensure system security?", "opts": ["A) By providing faster data transmission rates", "B) By preventing unauthorized access to key resources", "C) By replacing outdated hardware with newer versions", "D) d) By increasing the capacity of network devices"], "ans": "B"},
+  {"q": "105. What is the primary purpose of the OSI reference model?", "opts": ["A) To increase the speed of data transmission", "B) To achieve compatibility between networks", "C) To provide encryption for secure communication", "D) To replace outdated networking protocols"], "ans": "B"},
+  {"q": "106. In the TCP/IP model, which OSI layers are combined into the application layer?", "opts": ["A) Physical and Data Link layers", "B) Presentation and Session layers", "C) Network and Transport layers", "D) Data Link and Network layers"], "ans": "B"},
+  {"q": "107. How many layers does the standard TCP/IP model have?", "opts": ["A) 4", "B) 5", "C) 6", "D) 7"], "ans": "B"},
+  {"q": "108. What does the physical layer convert digital signals into?", "opts": ["A) TCP headers", "B) Frames", "C) Packets", "D) Electrical, optical, or electromagnetic signals"], "ans": "D"},
+  {"q": "109. Which protocol is used at the transport layer to ensure reliable data transmission?", "opts": ["A) HTTP", "B) IP", "C) TCP", "D) Ethernet"], "ans": "C"},
+  {"q": "110. Which layer in the TCP/IP model is responsible for routing packets across networks?", "opts": ["A) Transport layer", "B) Application layer", "C) Network layer", "D) Data link layer"], "ans": "C"},
+  {"q": "111. What type of service does TCP provide?", "opts": ["A) Connectionless and unreliable", "B) Connection-oriented and reliable", "C) High efficiency with low reliability", "D) Connectionless with no acknowledgment"], "ans": "B"},
+  {"q": "112. Which mechanism ensures TCP’s reliability by verifying data integrity?", "opts": ["A) Flow control", "B) Transmission acknowledgment", "C) Checksum of the header and data", "D) MSS (Maximum Segment Size)."], "ans": "C"},
+  {"q": "113. What is one of the main advantages of UDP over TCP?", "opts": ["A) High encapsulation overhead", "B) Guaranteed reliability", "C) Higher transmission efficiency", "D) Flow control"], "ans": "C"},
+  {"q": "114. Which application type is most suitable for UDP?", "opts": ["A) File transfer applications", "B) Real-time applications like video conferencing", "C) Applications requiring reliable transmission", "D) Database management systems"], "ans": "B"},
+  {"q": "115. What is a limitation of routers that Layer 3 switches address?", "opts": ["A) Inability to handle MAC addresses", "B) High costs and low forwarding performance", "C) Limited functionality at the data link layer", "D) Inability to connect devices in a LAN"], "ans": "B"},
+  {"q": "116. An Operating System that adopts \"Everything is a file\" design.", "opts": ["A) MAC OS", "B) Windows OS", "C) Android OS", "D) Linux OS"], "ans": "D"},
+  {"q": "117. What is openEuler primarily based on?", "opts": ["A) Windows kernel", "B) Linux kernel", "C) macOS kernel", "D) FreeBSD kernel"], "ans": "B"},
+  {"q": "118. Which architectures does openEuler support?", "opts": ["A) ARM and PowerPC", "B) x86 and ARM", "C) x86 and SPARC", "D) MIPS and RISC"], "ans": "B"},
+  {"q": "119. Which of the following is NOT a scenario for which openEuler is ideal?", "opts": ["A) Database", "B) Big Data", "C) Cloud Computing", "D) Gaming Consoles"], "ans": "D"},
+  {"q": "120. Why is openEuler respected in the industry?", "opts": ["A) For its gaming capabilities", "B) For its stability, security, and efficiency", "C) For being exclusively compatible with x86 processors", "D) For its proprietary nature"], "ans": "B"},
+  {"q": "121. In openEuler file system, the file system that specially designed for Linux, latest version of it is gen 4 used as default.", "opts": ["A) Ext", "B) XFS", "C) VFAT", "D) ISO 9600"], "ans": "A"},
+  {"q": "122. In openEuler file system, the file system that excels in large-file processing and provides smooth data transfer.", "opts": ["A) ISO 9600", "B) VFAT", "C) Ext", "D) XFS"], "ans": "D"},
+  {"q": "123. What does this command [root@openEuler ~]# dnf update, can do?", "opts": ["A) Installs new software packages", "B) Updates all installed packages to their latest versions", "C) Removes outdated packages from the system", "D) Upgrades the operating system kernel"], "ans": "B"},
+  {"q": "124. What does this command [root@openEuler ~]# hostnamectl set-hostname myserver, can do?", "opts": ["A) Displays the current hostname of the system", "B) Sets the system's hostname to myserver", "C) Resets the system's hostname to default", "D) Configures the system's IP address"], "ans": "B"},
+  {"q": "125. In openEuler, UID of super user is:", "opts": ["A) 0", "B) 1", "C) 999", "D) 1000"], "ans": "A"},
+  {"q": "126. Which shutdown option powers off the computer after it is shut down?", "opts": ["A) -r", "B) -h", "C) -p", "D) -d"], "ans": "B"},
+  {"q": "127. What does the -r option of the shutdown command do?", "opts": ["A) Powers off the computer after it is shut down", "B) Restarts the computer", "C) Logs activity to /var/log/wtmp", "D) Disables network settings"], "ans": "B"},
+  {"q": "128. Which option of the reboot command writes records to /var/log/wtmp without restarting the system?", "opts": ["A) -r", "B) -w", "C) -d", "D) -i"], "ans": "B"},
+  {"q": "129. Which reboot option restarts the system with network settings disabled?", "opts": ["A) -r", "B) -h", "C) -i", "D) -d"], "ans": "C"},
+  {"q": "130. What is the primary purpose of the cat command in Linux?", "opts": ["A) To view the first 10 lines of a file", "B) To view the last 10 lines of a file", "C) To view the contents of a small file, displaying all lines in the file", "D) To dynamically display file changes"], "ans": "C"},
+  {"q": "131. What does the head command do by default in Linux?", "opts": ["A) Displays the first 10 lines of a file", "B) Displays the last 10 lines of a file", "C) Dynamically displays file changes", "D) Specifies the number of last lines to display"], "ans": "A"},
+  {"q": "132. What does the tail command do by default in Linux?", "opts": ["A) Displays the first 10 lines of a file", "B) Displays all lines in a file", "C) Displays the last 10 lines of a file", "D) Dynamically displays file changes"], "ans": "C"},
+  {"q": "133. Which layer of the OSI model begins the encapsulation process?", "opts": ["A) Physical Layer", "B) Data Link Layer", "C) Application Layer", "D) Network Layer"], "ans": "C"},
+  {"q": "134. What is the primary function of a data transmission medium?", "opts": ["A) Processing data", "B) Storing data", "C) Transferring data", "D) Analyzing data"], "ans": "C"},
+  {"q": "135. Data decapsulation occurs at which destination layer?", "opts": ["A) Application Layer", "B) Transport Layer", "C) Network Layer", "D) Physical Layer"], "ans": "A"},
+  {"q": "136. Which process removes headers and trailers to retrieve original data?", "opts": ["A) Data encapsulation", "B) Data extraction", "C) Data decapsulation", "D) Data manipulation"], "ans": "C"},
+  {"q": "137. What is the primary purpose of flow control?", "opts": ["A) To increase transmission speed", "B) To avoid buffer overflow", "C) To prioritize certain data", "D) To encrypt data"], "ans": "B"},
+  {"q": "138. Which interface in Linux is character-based?", "opts": ["A) GUI", "B) CLI", "C) API", "D) TUI"], "ans": "B"},
+  {"q": "139. What is the main input tool for Linux GUI?", "opts": ["A) Keyboard", "B) Mouse", "C) Trackpad", "D) Touchscreen"], "ans": "B"},
+  {"q": "140. Which Linux interface is more suited for advanced users?", "opts": ["A) CLI", "B) GUI", "C) Hybrid", "D) API"], "ans": "A"},
+  {"q": "141. Which directory is used to store user-specific data in Linux?", "opts": ["A) /root", "B) /home", "C) /usr", "D) /bin"], "ans": "B"},
+  {"q": "142. What does the /etc directory contain?", "opts": ["A) User files", "B) Configuration files", "C) Executable binaries", "D) Temporary files"], "ans": "B"},
+  {"q": "143. Where are the essential commands for Linux stored?", "opts": ["A) /usr", "B) /var", "C) /bin", "D) /opt"], "ans": "C"},
+  {"q": "144. Which command is used to list files in a directory?", "opts": ["A) cd", "B) ls", "C) mkdir", "D) touch"], "ans": "B"},
+  {"q": "145. What does the rm command do?", "opts": ["A) Rename files", "B) Remove files or directories", "C) Create directories", "D) Copy files"], "ans": "B"},
+  {"q": "146. Which command is used to change the current working directory?", "opts": ["A) pwd", "B) cd", "C) ls", "D) mv"], "ans": "B"},
+  {"q": "147. What does the pwd command display?", "opts": ["A) Permissions of files", "B) Path of the current working directory", "C) Processes running on the system", "D) Password of the user"], "ans": "B"},
+  {"q": "148. System users in Linux are typically used for which purpose?", "opts": ["A) Performing administrative tasks", "B) Running programs or services", "C) Accessing user accounts", "D) None of the above"], "ans": "B", "fixed": true},
+  {"q": "149. What is the UID range for Common Users in Linux?", "opts": ["A) 0 to 999", "B) 1 to 999", "C) 1000 to 60000", "D) 60001 to 70000"], "ans": "C"},
+  {"q": "150. Which directory in Linux is used for storing temporary files?", "opts": ["A) /var", "B) /tmp", "C) /home", "D) /opt"], "ans": "B"},
+  {"q": "151. What is the name of the domain that manages the Xen hypervisor and has direct access to the physical hardware?", "opts": ["A) DomU", "B) Hardware", "C) Xen", "D) Dom0"], "ans": "D"},
+  {"q": "152. What is the primary role of DomU in Xen Virtualization?", "opts": ["A) To act as a bridge for hardware access", "B) To manage and control other VMs", "C) To function as a guest virtual machine", "D) To load the Xen Hypervisor"], "ans": "C"},
+  {"q": "153. What are the two types of virtualization supported by Xen?", "opts": ["A) Full virtualization only", "B) Full virtualization and Hardware-Assisted virtualization", "C) Full virtualization and Paravirtualization", "D) None of the above"], "ans": "C", "fixed": true},
+  {"q": "154. What does KVM stand for?", "opts": ["A) Kernel Virtual Memory", "B) Kernel Virtual Machine", "C) Kernel Verified Module", "D) Kernel-based Virtual Management"], "ans": "B"},
+  {"q": "155. Which CPU architectures are supported by KVM and Xen?", "opts": ["A) x86/x86_64 only", "B) ARM only", "C) x86/x86_64, ARM, IA64, and others", "D) IA64 and RISC only"], "ans": "C"},
+  {"q": "156. What does isolation in virtualization ensure?", "opts": ["A) Physical servers remain unaffected by VM failures", "B) VMs running on the same server are protected from each other's failures", "C) Each VM operates only on its independent physical machine", "D) Hardware cannot be shared between VMs"], "ans": "B"},
+  {"q": "157. What is required in paravirtualization?", "opts": ["A) Guest OS must be modified to work with the hypervisor", "B) No changes are made to the guest OS or hardware", "C) Hardware must support MMU virtualization", "D) Guest OS runs directly on the physical hardware"], "ans": "A"},
+  {"q": "158. What is a key feature of hardware-assisted virtualization?", "opts": ["A) The guest OS must be modified to function properly", "B) The hypervisor handles all virtualization without hardware support", "C) CPUs provide additional instructions and modes for virtualization", "D) It is only compatible with Linux operating systems"], "ans": "C"},
+  {"q": "159. A Linux kernel module that turns the kernel into a hypervisor:", "opts": ["A) KVM", "B) Xen", "C) VMware", "D) Dom0"], "ans": "A"},
+  {"q": "160. Which virtualization technology is commonly used with KVM for I/O virtualization?", "opts": ["A) Virtio", "B) PCI passthrough", "C) Full emulation", "D) BIOS virtualization"], "ans": "A"},
+  {"q": "161. What does hardware independence in virtualization mean?", "opts": ["A) Virtual machines can only run on specific hardware brands.", "B) Virtual machines require the same hardware as the physical server.", "C) Virtual machines can run on any server without modification.", "D) Hardware is entirely decoupled from software dependencies."], "ans": "C"},
+  {"q": "162. Which virtualization characteristic ensures multiple OSs can share the same physical server without conflict?", "opts": ["A) Encapsulation", "B) Partitioning", "C) Isolation", "D) Resource pooling"], "ans": "B"},
+  {"q": "163. What is a major disadvantage of I/O virtualization?", "opts": ["A) High dependency on the host machine", "B) Poor compatibility with legacy devices", "C) Poor performance due to long I/O paths and frequent VM-Exits", "D) High overhead in hardware-assisted environments"], "ans": "C"},
+  {"q": "164. Which command displays the current hostname of a system?", "opts": ["A) echo /etc/hostname", "B) hostnamectl", "C) cat /etc/hostname", "D) hostname"], "ans": "D"},
+  {"q": "165. How do you delete a specific route in Linux?", "opts": ["A) route del <route>", "B) ip route remove <route>", "C) net del <route>", "D) route -delete <route>"], "ans": "A"},
+  {"q": "166. What does the route -n command display?", "opts": ["A) Network traffic statistics", "B) The routing table with IP addresses", "C) DNS configurations", "D) Network device drivers"], "ans": "B"},
+  {"q": "167. Which command is used to view the IP addresses of all interfaces on a host?", "opts": ["A) ifconfig <interface>", "B) ip addr show", "C) ip show all", "D) networkctl status"], "ans": "B"},
+  {"q": "168. What does the :q! command do in Vim?", "opts": ["A) Saves and exits the file", "B) Exits without saving changes", "C) Opens a new file", "D) Switches to insert mode"], "ans": "B"},
+  {"q": "169. How do you save and exit a file in Vim?", "opts": ["A) :w", "B) :q", "C) :wq", "D) :q!"], "ans": "C"},
+  {"q": "170. Which command is used to open a file with Vim?", "opts": ["A) open", "B) vim <filename>", "C) edit <filename>", "D) cat <filename>"], "ans": "B"},
+  {"q": "171. Which command displays all network adapters on a host?", "opts": ["A) ifconfig -a", "B) ip link show", "C) netstat", "D) nmcli show"], "ans": "A"},
+  {"q": "172. How do you view the IP address of a specific interface using the ip command?", "opts": ["A) ip show interface <interface>", "B) ip addr show <interface>", "C) ifconfig <interface>", "D) netctl <interface>"], "ans": "B"},
+  {"q": "173. Which command shows the routing table in Linux?", "opts": ["A) netctl routes", "B) route show", "C) route -n", "D) ip route table"], "ans": "C"},
+  {"q": "174. What command is used to set a temporary hostname?", "opts": ["A) hostnamectl temporary <hostname>", "B) hostname <hostname>", "C) set-hostname <hostname>", "D) echo <hostname> > /etc/hostname"], "ans": "B"},
+  {"q": "175. What does the route del -host command do?", "opts": ["A) Deletes a route to a network segment.", "B) Deletes a route to a specific host.", "C) Deletes all routes from the table.", "D) Deletes the default gateway."], "ans": "B"},
+  {"q": "176. What is the first program loaded after enabling a server through the BIOS in Xen virtualization?", "opts": ["A) Domain 0 (Dom0)", "B) Xen Hypervisor", "C) Linux Kernel", "D) QEMU"], "ans": "B"},
+  {"q": "177. How does Domain U (DomU) access hardware in Xen virtualization?", "opts": ["A) Directly through the hypervisor", "B) Through emulation by QEMU", "C) Through Dom0’s physical drives", "D) By interacting with the BIOS directly"], "ans": "C"},
+  {"q": "178. What components does the Xen hypervisor primarily manage?", "opts": ["A) User interfaces and software applications", "B) Virtual CPUs, memory, and access to hardware", "C) GPU rendering and audio processing", "D) Security policies and encryption services"], "ans": "B"},
+  {"q": "179. What does KVM use Linux for?", "opts": ["A) Hardware emulation only", "B) Direct hardware access", "C) Task scheduling, memory management, and hardware interaction", "D) Network configuration exclusively"], "ans": "C"},
+  {"q": "180. What role does QEMU play in KVM virtualization?", "opts": ["A) It provides kernel-level virtualization", "B) It offers hardware I/O virtualization emulation in user space", "C) It schedules tasks for the Linux kernel", "D) It directly manages memory allocation for VMs"], "ans": "B"},
+  {"q": "181. How does KVM differ from QEMU?", "opts": ["A) KVM runs in user space, while QEMU runs in kernel space", "B) KVM provides hardware emulation, while QEMU provides CPU virtualization", "C) KVM provides CPU and memory virtualization, while QEMU provides hardware I/O emulation", "D) d) KVM is open-source, while QEMU is proprietary"], "ans": "C"},
+  {"q": "182. Which file does KVM use as a standard Linux character set device?", "opts": ["A) /dev/qemu", "B) /dev/vmm", "C) /dev/kvm", "D) /dev/hypervisor"], "ans": "C"},
+  {"q": "183. What is the primary role of QEMU in KVM virtualization?", "opts": ["A) To directly execute guest code", "B) To simulate and handle I/O operations in user mode", "C) To manage kernel threads for virtualization", "D) To parse Linux kernel commands"], "ans": "B"},
+  {"q": "184. What occurs in the kernel mode of KVM?", "opts": ["A) Guest code execution without I/O operations", "B) User-level simulation of I/O requests", "C) Processing VM-Exits and handling hardware interactions", "D) Direct communication with user applications"], "ans": "C"},
+  {"q": "185. How does KVM communicate VM creation and execution commands?", "opts": ["A) By using standard Linux kernel APIs", "B) Through LibKVM and ioctl system calls", "C) Via direct interaction with guest mode", "D) Using TCP/IP protocols"], "ans": "B"},
+  {"q": "186. Which of the following is NOT one of the modes in which KVM operates?", "opts": ["A) Guest Mode", "B) User Mode", "C) Hypervisor Mode", "D) Kernel Mode"], "ans": "C"},
+  {"q": "187. Libvirt is primarily:", "opts": ["A) A type of hypervisor", "B) A virtualization management tool", "C) A guest operating system", "D) A network driver"], "ans": "B"},
+  {"q": "188. Which of the following hypervisors is supported by Libvirt?", "opts": ["A) Xen", "B) KVM", "C) VMware", "D) All of the above"], "ans": "D", "fixed": true},
+  {"q": "189. Which function is provided by the FusionCompute virtualization suite?", "opts": ["A) Physical hardware configuration", "B) Dynamic workload distribution", "C) Network cable management", "D) Manual backup only"], "ans": "B"},
+  {"q": "190. What does the Compute Node Agent (CNA) manage?", "opts": ["A) Compute, storage, and network resources on compute nodes", "B) Block storage resources in a cluster", "C) Virtual machine lifecycle on compute nodes", "D) IP address allocation to virtual machines"], "ans": "A"},
+  {"q": "191. What is the main purpose of the Virtual Resource Manager (VRM)?", "opts": ["A) Running applications directly", "B) Installing operating systems on VMs", "C) Unified management of virtual resources", "D) Replacing physical server hardware"], "ans": "C"},
+  {"q": "192. How does FusionCompute reduce OPEX?", "opts": ["A) By increasing physical machine count", "B) By centrally managing virtual resources", "C) By running a single application per server", "D) By eliminating server maintenance requirements"], "ans": "B"},
+  {"q": "193. What is the primary function of the BMC plane?", "opts": ["A) To manage storage resources", "B) To enable remote access to the BMC system", "C) To manage network resources", "D) To provide IP addresses for VMs"], "ans": "B"},
+  {"q": "194. What does the management plane provide IP addresses for?", "opts": ["A) Only for management VMs", "B) Management IP addresses of all hosts", "C) Only for storage device controllers", "D) Only for compute nodes"], "ans": "B"},
+  {"q": "195. What is the primary purpose of the management plane in FusionCompute?", "opts": ["A) To manage all nodes in a unified manner", "B) To provide remote access to servers", "C) To manage storage resources only", "D) To allocate IP addresses to physical servers"], "ans": "A"},
+  {"q": "196. What does VRM manage in a cluster?", "opts": ["A) Block storage resources", "B) Physical server access", "C) Network security", "D) User data only"], "ans": "A"},
+  {"q": "197. What is the recommended number of hosts for single cluster deployed in FusionCompute?", "opts": ["A) Less than 10", "B) More than 10", "C) Exactly 10", "D) Depending on"], "ans": "A"},
+  {"q": "198. Which component of FusionCompute allows O&M engineers to manage resources remotely?", "opts": ["A) CNA", "B) VRM", "C) UltraVR", "D) FusionStorage"], "ans": "B"},
+  {"q": "199. What is the minimum memory requirement for a server (CNA) in FusionCompute installation?", "opts": ["A) 2 GB", "B) 4 GB", "C) 8 GB", "D) 48 GB"], "ans": "C"},
+  {"q": "200. Which precaution is recommended during the installation process of FusionCompute?", "opts": ["A) Restart the host frequently", "B) Disable the firewall on the local PC", "C) Change the local PC IP address", "D) Ensure file path exceeds 256 characters"], "ans": "B"},
+  {"q": "201. Which component of FusionCompute is responsible for implementing the virtual computing function?", "opts": ["A) CNA (Compute Node Agent)", "B) VRM (Virtual Resource Management)", "C) UltraVR", "D) eBackup"], "ans": "A"},
+  {"q": "202. What is the main purpose of the BMC plane in the FusionCompute network planning?", "opts": ["A) To provide a unified communication channel for all nodes", "B) To enable remote access to the BMC system of a server", "C) To manage VM lifecycle and configurations", "D) To allocate IP addresses dynamically"], "ans": "B"},
+  {"q": "203. In network planning for FusionCompute, what is the role of the service plane?", "opts": ["A) To isolate management traffic", "B) To ensure host-to-storage communication", "C) To serve user VMs", "D) To control access to BMC resources"], "ans": "C"},
+  {"q": "204. What is the main advantage of I/O virtualization?", "opts": ["A) High dependency on the hardware platform", "B) Convenient emulation of popular and legacy devices", "C) Requires additional support from host and guest machines", "D) Poor compatibility"], "ans": "B"},
+  {"q": "205. What is the primary function of the Xen hypervisor when a server is enabled through BIOS?", "opts": ["A) To manage physical memory", "B) To enable a VM with specific permissions", "C) To run applications directly", "D) To provide network services"], "ans": "B"},
+  {"q": "206. What is the main disadvantage of I/O virtualization?", "opts": ["A) High compatibility", "B) Poor performance due to long I/O path", "C) Convenient emulation of devices", "D) Low dependency on hardware"], "ans": "B"},
+  {"q": "207. What is the purpose of paravirtualized devices in full virtualization?", "opts": ["A) To replace emulated devices for disks and NICs", "B) To enhance security", "C) To increase the number of VMs", "D) To provide direct access to hardware"], "ans": "A"},
+  {"q": "208. How does FusionCompute enhance system availability?", "opts": ["A) By running all hosts without a backup.", "B) Through features like high availability (HA) and fault tolerance (FT).", "C) By shutting down idle virtual machines automatically.", "D) By requiring manual recovery for host failures."], "ans": "B"},
+  {"q": "209. What feature of FusionCompute enhances scalability in virtualization?", "opts": ["A) Support for a single virtual machine per host.", "B) Ability to manage hundreds of hosts and virtual machines in clusters.", "C) Limiting the number of virtual CPUs per machine.", "D) Fixed resource allocation without dynamic adjustments."], "ans": "B"},
+  {"q": "210. How does FusionCompute improve storage utilization?", "opts": ["A) By using dedicated storage for each VM.", "B) Through features like thin provisioning and storage resource pooling.", "C) By restricting storage access to physical hosts only.", "D) By requiring manual configuration of storage resources."], "ans": "B"},
+  {"q": "211. What is the primary function of FusionCompute?", "opts": ["A) Database management", "B) Virtualization platform for resource management", "C) Network troubleshooting tool", "D) Data analytics software"], "ans": "B"},
+  {"q": "212. Which of the following functions is provided by FusionCompute?", "opts": ["A) Centralized management of virtualized resources", "B) Development of mobile applications", "C) Monitoring physical server temperature", "D) Cloud storage synchronization"], "ans": "A"},
+  {"q": "213. FusionCompute helps in managing:", "opts": ["A) Virtual machines, storage, and networks", "B) Internet traffic", "C) Software development lifecycle", "D) Cybersecurity threats"], "ans": "A"},
+  {"q": "214. Which feature of FusionCompute improves resource utilization?", "opts": ["A) Virtual resource scheduling", "B) Image editing tools", "C) File compression algorithms", "D) Encryption of all virtual machines"], "ans": "A"},
+  {"q": "215. How does FusionCompute ensure high availability of virtual machines?", "opts": ["A) By taking regular backups of data", "B) By creating redundant VRM nodes and enabling resource failover", "C) By shutting down inactive VMs", "D) By using antivirus software"], "ans": "B"},
+  {"q": "216. What does the Partitioning characteristic of virtualization enable?", "opts": ["A) VMs to run independently on separate servers", "B) Multiple VMs to concurrently run on the same physical server", "C) VMs to share the same OS kernel", "D) VMs to be directly dependent on physical hardware"], "ans": "B"},
+  {"q": "217. What is the purpose of the Isolation characteristic in virtualization?", "opts": ["A) To share resources among VMs on the same server", "B) To ensure VMs are isolated from one another on the same physical server", "C) To migrate VMs between servers", "D) To bind VMs to specific hardware"], "ans": "B"},
+  {"q": "218. Which of the following is NOT a component of the FusionCompute virtualization suite?", "opts": ["A) FusionCompute and FusionCompute Pro", "B) eBackup", "C) UltraVR", "D) eSecurity"], "ans": "D"},
+  {"q": "219. Where should active and standby VRM nodes be deployed for best practices?", "opts": ["A) On the same VM in the management cluster", "B) On two VMs on different hosts in the management cluster", "C) On a single physical server", "D) On hosts providing user services"], "ans": "B"},
+  {"q": "220. What is advised for optimizing compute resource utilization in each cluster?", "opts": ["A) Deploy VRM nodes on physical servers", "B) Configure the same types of DVSs and data stores for hosts", "C) Add hosts providing user services to multiple service clusters", "D) Deploy active and standby VRM nodes in the same cluster"], "ans": "B"},
+  {"q": "221. When is it recommended to deploy VRM nodes on physical servers?", "opts": ["A) In scenarios requiring high availability", "B) When no VMs are available for deployment", "C) In small-scale deployments with fewer than 10 hosts", "D) When active and standby VRM nodes are needed"], "ans": "A"}
+];
+
+const quizDiv = document.getElementById('quiz');
+let currentQuestions = [...questions];
+
+function renderQuiz(){
+  quizDiv.innerHTML = '';
+  currentQuestions.forEach((item, idx) => {
+    const qDiv = document.createElement('div');
+    qDiv.className = 'q';
+    qDiv.id = 'q'+(idx+1);
+    const h = document.createElement('h3');
+    const questionText = item.q.replace(/^\d+\.\s*/, '');
+    h.textContent = (idx + 1) + '. ' + questionText;
+    qDiv.appendChild(h);
+
+    const optsDiv = document.createElement('div');
+    optsDiv.className = 'opts';
+
+    item.opts.forEach((opt, j)=>{
+      const label = document.createElement('label');
+      label.className = 'opt';
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'q'+idx;
+      radio.value = String.fromCharCode(65+j);
+      const span = document.createElement('span');
+      const cleanOpt = opt.replace(/^[A-D]\)\s*/, '');
+      span.textContent = String.fromCharCode(65+j) + ') ' + cleanOpt;
+      label.appendChild(radio);
+      label.appendChild(span);
+      optsDiv.appendChild(label);
+    });
+
+    qDiv.appendChild(optsDiv);
+    quizDiv.appendChild(qDiv);
+  });
+}
+
+function grade(){
+  let correct=0;
+  currentQuestions.forEach((item, idx)=>{
+    const selected = document.querySelector('input[name="q'+idx+'"]:checked');
+    const qElem = document.getElementById('q'+(idx+1));
+    qElem.classList.remove('correct','wrong');
+    qElem.querySelectorAll('.opt').forEach(l=>{l.style.opacity='1';});
+    if(selected){
+      const val = selected.value;
+      if(val === item.ans){
+        correct++;
+        qElem.classList.add('correct');
+      } else {
+        qElem.classList.add('wrong');
+        qElem.querySelectorAll('.opt').forEach(l=>{if(l.querySelector('input').checked) l.style.fontWeight='700';});
+      }
+    } else {
+      qElem.classList.add('wrong');
+    }
+    let ansText = document.createElement('div');
+    ansText.style.marginTop='8px';
+    ansText.style.fontSize='13px';
+    ansText.style.color='#0b1220';
+    ansText.innerHTML = '<small><strong>Correct answer: </strong>' + item.ans + '</small>';
+    const old = qElem.querySelector('.correctAnswer');
+    if(old) old.remove();
+    ansText.className='correctAnswer';
+    qElem.appendChild(ansText);
+  });
+
+  const total = currentQuestions.length;
+  const percent = Math.round((correct/total)*100);
+  const gradeLetter = percent>=90? 'A' : percent>=80? 'B' : percent>=70? 'C' : percent>=60? 'D' : 'F';
+
+  const summary = document.getElementById('summary');
+  summary.innerHTML = '<div class="result"><div class="score">Score: '+correct+' / '+total+' ('+percent+'%) — Grade: '+gradeLetter+'</div>'+
+                      '<div style="margin-top:8px"><small>Correct: '+correct+' — Wrong/Unanswered: '+(total-correct)+'</small></div></div>';
+  summary.scrollIntoView({behavior:'smooth'});
+}
+
+function resetQuiz(){
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('.q').forEach(q=>{
+    q.classList.remove('correct','wrong');
+    const ca = q.querySelector('.correctAnswer'); if(ca) ca.remove();
+    q.querySelectorAll('.opt').forEach(l=>{l.style.fontWeight='400';l.style.opacity='1'});
+  });
+  document.getElementById('summary').innerHTML='';
+}
+
+function shuffleQuestions(){
+  resetQuiz();
+  currentQuestions = [...questions];
+  for(let i = currentQuestions.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
+  }
+
+  currentQuestions = currentQuestions.map(q => {
+    if (q.opts.length === 2 && q.opts[0].includes('True') && q.opts[1].includes('False')) {
+      return q;
+    }
+    if (q.fixed === true) {
+      return q;
+    }
+    const newQ = {...q};
+
+    const optionsWithLetters = newQ.opts.map((opt, idx) => ({
+      text: opt,
+      originalLetter: String.fromCharCode(65 + idx)
+    }));
+
+    for (let i = optionsWithLetters.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [optionsWithLetters[i], optionsWithLetters[j]] = [optionsWithLetters[j], optionsWithLetters[i]];
+    }
+
+    newQ.opts = optionsWithLetters.map(item => item.text);
+
+    const correctAnswerIndex = optionsWithLetters.findIndex(
+      item => item.originalLetter === newQ.ans
+    );
+    newQ.ans = String.fromCharCode(65 + correctAnswerIndex);
+
+    return newQ;
+  });
+
+  renderQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+renderQuiz();
+
+document.getElementById('submitBtn').addEventListener('click', grade);
+document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+document.getElementById('shuffleBtn').addEventListener('click', shuffleQuestions);
+
+</script>
+</body>
+</html>
